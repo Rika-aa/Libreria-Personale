@@ -17,6 +17,7 @@ public class Memento {
             Libro copia = new Libro(libro.getTitolo(), libro.getAutore(), libro.getISBN(), libro.getGenere());
             copia.setValutazione(libro.getValutazione());
             copia.setStatoLettura(libro.getStatoLettura());
+            this.stato.add(copia);
         }
 
     }

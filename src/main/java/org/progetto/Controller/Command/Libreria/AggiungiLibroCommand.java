@@ -19,11 +19,9 @@ public class AggiungiLibroCommand implements Command {
     public boolean esegui() {
         //salvo lo stato corrente
         gestoreStati.saveState(gestoreStati.getStatoCorrente().save());
-
         //eseguo l'operazione di aggiunta
         LibreriaSingleton.INSTANCE.aggiungiLibro(nuovoLibro);
-
-        return false;
+        return true;
     }
 
     @Override

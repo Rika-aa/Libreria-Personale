@@ -20,7 +20,7 @@ public class ModificaLibroCommand implements Command {
         //salvo lo stato corrente
         gestoreStati.saveState(gestoreStati.getStatoCorrente().save());
         //eseguo la modifica
-        LibreriaSingleton.INSTANCE.aggiungiLibro(libroModificato);
+        LibreriaSingleton.INSTANCE.modificaLibro(libroModificato);
         return true;
     }
 
