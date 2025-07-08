@@ -6,7 +6,7 @@ import java.util.List;
 
 public class GestoreLibreria implements Serializable {
 
-    List<Libro> libri;
+    private List<Libro> libri;
 
     public GestoreLibreria() {
         libri = new ArrayList<Libro>();
@@ -58,6 +58,12 @@ public class GestoreLibreria implements Serializable {
         }
         return null; //libro non trovato
     }
+
+    public List<Libro> getLibri() {
+        return new ArrayList<>(libri);
+    }
+
+
 
 }
 
