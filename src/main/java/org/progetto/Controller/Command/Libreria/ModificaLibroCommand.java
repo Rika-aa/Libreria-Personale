@@ -1,7 +1,7 @@
 package org.progetto.Controller.Command.Libreria;
 
 import org.progetto.Controller.Command.Command;
-import org.progetto.Controller.Memento.GestoreStatiLibreria;
+import org.progetto.Model.Memento.GestoreStatiLibreria;
 import org.progetto.Model.Libro;
 import org.progetto.Model.Singleton.LibreriaSingleton;
 

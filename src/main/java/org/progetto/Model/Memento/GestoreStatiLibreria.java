@@ -1,4 +1,4 @@
-package org.progetto.Controller.Memento;
+package org.progetto.Model.Memento;
 
 import java.util.LinkedList;
 
