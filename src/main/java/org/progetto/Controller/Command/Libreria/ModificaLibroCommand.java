@@ -17,10 +17,9 @@ public class ModificaLibroCommand implements Command {
 
     @Override
     public boolean esegui() {
-        //salvo lo stato corrente
-        gestoreStati.saveState(gestoreStati.getStatoCorrente().save());
         //eseguo la modifica
         LibreriaSingleton.INSTANCE.modificaLibro(libroModificato);
+        gestoreStati.saveState(LibreriaSingleton.INSTANCE.getGestore().save());
         return true;
     }
 
