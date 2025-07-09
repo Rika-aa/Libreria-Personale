@@ -289,13 +289,13 @@ public class LibreriaGUI extends JFrame {
         isbnField.setEditable(false);//ISBN originale
         JTextField genereField = new JTextField(libro.getGenere());
 
-        // Gestione Valutazione (JComboBox per enum)
+        // Gestione Valutazione
         JComboBox<Libro.Valutazione> valutazioneComboBox = new JComboBox<>(Libro.Valutazione.values());
         if (libro.getValutazione() != null) {
             valutazioneComboBox.setSelectedItem(libro.getValutazione());
         }
 
-        // Gestione StatoLettura (JComboBox per enum)
+        // Gestione StatoLettura
         JComboBox<Libro.StatoLettura> statoLetturaComboBox = new JComboBox<>(Libro.StatoLettura.values());
         statoLetturaComboBox.setSelectedItem(libro.getStatoLettura());
 

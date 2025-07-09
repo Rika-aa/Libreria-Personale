@@ -1,5 +1,6 @@
 package org.progetto.Model;
 
+import org.progetto.Database.LibroDAO;
 import org.progetto.Model.Memento.Memento;
 import org.progetto.Model.Observer.LibreriaSubject;
 import org.progetto.Model.Observer.Observer;
@@ -8,14 +9,16 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GestoreLibreria implements Serializable, LibreriaSubject {
+public class GestoreLibreria implements LibreriaSubject {
 
     private List<Libro> libri;
     private List<Observer> observers;
+    private LibroDAO libroDAO;
 
     public GestoreLibreria() {
-        libri = new ArrayList<Libro>();
         observers = new ArrayList<>();
+        libroDAO = new LibroDAO();
+        libri = libroDAO.getAllLibri();
     }
 
     public Memento save() {
@@ -37,29 +40,55 @@ public class GestoreLibreria implements Serializable, LibreriaSubject {
             copia.setStatoLettura(libro.getStatoLettura());
             this.libri.add(copia);
         }
+        sincronizzaDBMemoria();
         notifyObservers();
+    }
+
+    //ricarica la tabella con quelli salvanti nella lista
+    private void sincronizzaDBMemoria() {
+        try{
+            libroDAO.clearLibri();
+            for(Libro libro:libri){
+                libroDAO.addLibro(libro);
+            }
+            System.out.println("DB-Memoria sincronizzato");
+        } catch (Exception e){
+            System.err.println("Errore sinncronizzazione");
+        }
     }
 
 
     public void aggiungiLibro(Libro lib) {
-        libri.add(lib);
-        notifyObservers();
+        if(libroDAO.addLibro(lib)) {
+            libri.add(lib);
+            notifyObservers();
+        } else {
+            System.err.println("Errore aggiunta libro nel db.");
+        }
     }
 
     public void modificaLibro(Libro lib) {
-        for(int i = 0; i < libri.size(); i++) {
-            Libro l = libri.get(i);
-            if(l.getISBN().equals(lib.getISBN())) {
-                libri.set(i, lib);
-                notifyObservers();
-                return;
+        if(libroDAO.updateLibro(lib)) {
+            for (int i = 0; i < libri.size(); i++) {
+                Libro l = libri.get(i);
+                if (l.getISBN().equals(lib.getISBN())) {
+                    libri.set(i, lib);
+                    notifyObservers();
+                    return;
+                }
             }
+        } else {
+            System.err.println("Errore modifica libro nel db.");
         }
     }
 
     public void eliminaLibro(Libro lib) {
-        libri.remove(lib);
-        notifyObservers();
+        if(libroDAO.deleteLibro(lib.getISBN())) {
+            libri.remove(lib);
+            notifyObservers();
+        } else {
+            System.err.println("Errore eliminazione libro dal db.");
+        }
     }
 
     public List<Libro> cercaLibroTitolo(String titolo) {
@@ -83,12 +112,13 @@ public class GestoreLibreria implements Serializable, LibreriaSubject {
     }
 
     public Libro cercaLibro(String ISBN){
-        for(Libro lib : libri){
+        /*for(Libro lib : libri){
             if(lib.getISBN().equals(ISBN)){
                 return lib;
             }
         }
-        return null; //libro non trovato
+        return null; //libro non trovato*/
+        return libroDAO.getLibroIsbn(ISBN);
     }
 
     public List<Libro> getLibri() {
@@ -103,6 +133,7 @@ public class GestoreLibreria implements Serializable, LibreriaSubject {
             copia.setStatoLettura(l.getStatoLettura());
             this.libri.add(copia);
         }
+        sincronizzaDBMemoria();
         notifyObservers();
     }
 

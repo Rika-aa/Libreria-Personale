@@ -2,7 +2,7 @@ package org.progetto.Model;
 
 import java.io.Serializable;
 
-public class Libro implements Serializable{
+public class Libro {
 
     public enum StatoLettura {
         DA_LEGGERE,
@@ -102,6 +102,20 @@ public class Libro implements Serializable{
                 "Genere: " + genere + "\n" +
                 "Valutazione: " + (valutazione != null ? getValutazione().getDescrizione() : "Non valutato.") + "\n" +
                 "Stato lettura: " + statoLettura + "\n";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Libro libro = (Libro) o;
+        return ISBN.equals(libro.ISBN);
+    }
+
+    @Override
+    public int hashCode() {
+        return ISBN.hashCode();
     }
 
 }
