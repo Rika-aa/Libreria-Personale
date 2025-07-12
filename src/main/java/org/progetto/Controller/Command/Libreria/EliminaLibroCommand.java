@@ -16,20 +16,11 @@ public class EliminaLibroCommand implements Command {
     }
 
     @Override
-    public boolean esegui() {
+    public void esegui() {
         //eseguo l'eliminazione
         LibreriaSingleton.INSTANCE.eliminaLibro(libroDaEliminare);
         gestoreStati.saveState(LibreriaSingleton.INSTANCE.getGestore().save());
-        return true;
     }
 
-    @Override
-    public boolean undo() {
-        return gestoreStati.undo();
-    }
-
-    @Override
-    public boolean redo() {
-        return gestoreStati.redo();
-    }
 }
+

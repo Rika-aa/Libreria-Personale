@@ -13,14 +13,43 @@ import java.util.List;
 public class LibroListView implements LibroView {
 
     private final JPanel panel;
-    private final JList<String> libroList;
-    private JPopupMenu popupMenu;
-    private final DefaultListModel<String> model;
+    private final JList<Libro> libroList;
+    private final DefaultListModel<Libro> model;
 
     public LibroListView() {
         panel = new JPanel(new BorderLayout());
         model = new DefaultListModel<>();
         libroList = new JList<>(model);
+
+        libroList.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        libroList.setSelectionBackground(new Color(173, 216, 230)); // azzurro chiaro
+        libroList.setSelectionForeground(Color.BLACK);
+
+        libroList.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Libro libro) {
+                    String valutazione = (libro.getValutazione() != null) ?
+                            libro.getValutazione().getDescrizione() : "Non ancora valutato.";
+                    label.setText(String.format(
+                            "<html><b>%s</b><br>Autore: %s<br>ISBN: %s<br>Genere: %s<br>Valutazione: %s<br>Stato: %s</html>",
+                            libro.getTitolo(),
+                            libro.getAutore(),
+                            libro.getISBN(),
+                            libro.getGenere(),
+                            valutazione,
+                            libro.getStatoLettura().name()
+                    ));
+                    label.setBorder(BorderFactory.createCompoundBorder(
+                            BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)),
+                            BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                    ));
+                }
+                return label;
+            }
+        });
 
         JScrollPane scrollPane = new JScrollPane(libroList);
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -53,7 +82,6 @@ public class LibroListView implements LibroView {
         });
     }
 
-
     @Override
     public JComponent getComponent() {
         return panel;
@@ -63,38 +91,20 @@ public class LibroListView implements LibroView {
     public void aggiorna(List<Libro> nuoviLibri) {
         model.clear();//ripulisco la lista
         for (Libro libro : nuoviLibri) { //aggiorno i dati
-            model.addElement(
-                    String.format("Titolo: %s -- Autore: %s -- ISBN: %s -- Genere: %s -- Valutazione: %s -- Stato: %s",
-                        libro.getTitolo(),
-                        libro.getAutore(),
-                        libro.getISBN(),
-                        libro.getGenere(),
-                        (libro.getValutazione() != null ? libro.getValutazione().getDescrizione() : "Non ancora valutato."),
-                        libro.getStatoLettura().name())
-            );
+            model.addElement(libro);
         }
     }
 
     @Override
     public void update(Object subject) {
-        if(subject instanceof LibreriaSingleton) {
-            List<Libro> libri = ((LibreriaSingleton) subject).getLibri();
+        if(subject instanceof GestoreLibreria) {
+            List<Libro> libri = ((GestoreLibreria) subject).getLibri();
             aggiorna(libri);
         }
     }
 
     public Libro getLibroSelezionato(){
-        String selected = libroList.getSelectedValue();
-        if (selected != null) {
-            String[] parts = selected.split("--");
-            for (String part : parts) {
-                part = part.trim();
-                if (part.startsWith("ISBN:")) {
-                    String isbn = part.substring("ISBN:".length()).trim();
-                    return LibreriaSingleton.INSTANCE.cercaLibro(isbn);
-                }
-            }
-        }
-        return null;
+        return libroList.getSelectedValue();
     }
 }
+

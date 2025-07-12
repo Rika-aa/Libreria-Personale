@@ -11,52 +11,15 @@ import java.util.List;
 
 public class GestoreLibreria implements LibreriaSubject {
 
-    private List<Libro> libri;
-    private List<Observer> observers;
-    private LibroDAO libroDAO;
+    private final List<Libro> libri;
+    private final List<Observer> observers;
+    private final LibroDAO libroDAO;
 
     public GestoreLibreria() {
         observers = new ArrayList<>();
         libroDAO = new LibroDAO();
         libri = libroDAO.getAllLibri();
     }
-
-    public Memento save() {
-        List<Libro> copiaStato = new ArrayList<>();
-        for (Libro libro : this.libri) {
-            Libro copia = new Libro(libro.getTitolo(), libro.getAutore(), libro.getISBN(), libro.getGenere());
-            copia.setValutazione(libro.getValutazione());
-            copia.setStatoLettura(libro.getStatoLettura());
-            copiaStato.add(copia);
-        }
-        return new Memento(copiaStato);
-    }
-
-    public void restore(Memento m) {
-        this.libri.clear();
-        for(Libro libro:m.getStato()){
-            Libro copia = new Libro(libro.getTitolo(), libro.getAutore(), libro.getISBN(), libro.getGenere());
-            copia.setValutazione(libro.getValutazione());
-            copia.setStatoLettura(libro.getStatoLettura());
-            this.libri.add(copia);
-        }
-        sincronizzaDBMemoria();
-        notifyObservers();
-    }
-
-    //ricarica la tabella con quelli salvanti nella lista
-    private void sincronizzaDBMemoria() {
-        try{
-            libroDAO.clearLibri();
-            for(Libro libro:libri){
-                libroDAO.addLibro(libro);
-            }
-            System.out.println("DB-Memoria sincronizzato");
-        } catch (Exception e){
-            System.err.println("Errore sinncronizzazione");
-        }
-    }
-
 
     public void aggiungiLibro(Libro lib) {
         if(libroDAO.addLibro(lib)) {
@@ -137,6 +100,7 @@ public class GestoreLibreria implements LibreriaSubject {
         notifyObservers();
     }
 
+    //Pattern Observer
     @Override
     public void attach(Observer o) {
         observers.add(o);
@@ -153,5 +117,43 @@ public class GestoreLibreria implements LibreriaSubject {
             o.update(this);
         }
     }
+
+    //Pattern Memento
+    public Memento save() {
+        List<Libro> copiaStato = new ArrayList<>();
+        for (Libro libro : this.libri) {
+            Libro copia = new Libro(libro.getTitolo(), libro.getAutore(), libro.getISBN(), libro.getGenere());
+            copia.setValutazione(libro.getValutazione());
+            copia.setStatoLettura(libro.getStatoLettura());
+            copiaStato.add(copia);
+        }
+        return new Memento(copiaStato);
+    }
+
+    public void restore(Memento m) {
+        this.libri.clear();
+        for(Libro libro:m.getStato()){
+            Libro copia = new Libro(libro.getTitolo(), libro.getAutore(), libro.getISBN(), libro.getGenere());
+            copia.setValutazione(libro.getValutazione());
+            copia.setStatoLettura(libro.getStatoLettura());
+            this.libri.add(copia);
+        }
+        sincronizzaDBMemoria();
+        notifyObservers();
+    }
+
+    //ricarica la tabella con quelli salvanti nella lista
+    private void sincronizzaDBMemoria() {
+        try{
+            libroDAO.clearLibri();
+            for(Libro libro:libri){
+                libroDAO.addLibro(libro);
+            }
+            //System.out.println("DB-Memoria sincronizzato"); //test
+        } catch (Exception e){
+            System.err.println("Errore sinncronizzazione");
+        }
+    }
+
 }
 

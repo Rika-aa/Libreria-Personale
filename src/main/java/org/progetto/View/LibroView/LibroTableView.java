@@ -1,7 +1,7 @@
 package org.progetto.View.LibroView;
 
+import org.progetto.Model.GestoreLibreria;
 import org.progetto.Model.Libro;
-import org.progetto.Model.Observer.LibreriaSubject;
 import org.progetto.Model.Singleton.LibreriaSingleton;
 
 import javax.swing.*;
@@ -15,7 +15,6 @@ public class LibroTableView implements LibroView {
 
     private final JPanel panel;
     private final JTable table;
-    private JPopupMenu popupMenu;
     private final DefaultTableModel model;
 
     public LibroTableView() {
@@ -83,8 +82,8 @@ public class LibroTableView implements LibroView {
 
     @Override
     public void update(Object subject) {
-        if(subject instanceof LibreriaSingleton){
-            List<Libro> libri = ((LibreriaSingleton) subject).getLibri();
+        if(subject instanceof GestoreLibreria){
+            List<Libro> libri = ((GestoreLibreria) subject).getLibri();
             aggiorna(libri);
         }
     }

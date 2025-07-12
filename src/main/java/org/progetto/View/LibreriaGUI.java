@@ -6,8 +6,9 @@ import org.progetto.Controller.Command.Libreria.ModificaLibroCommand;
 import org.progetto.Model.Libro;
 import org.progetto.Model.Memento.GestoreStatiLibreria;
 import org.progetto.Model.Singleton.LibreriaSingleton;
-import org.progetto.View.AbstractFactory.LibroListViewFactory;
-import org.progetto.View.AbstractFactory.LibroTableViewFactory;
+import org.progetto.Model.Strategy.Filtro;
+import org.progetto.Model.Strategy.FiltroStatoLettura;
+import org.progetto.Model.Strategy.FiltroValutazione;
 import org.progetto.View.LibroView.LibroListView;
 import org.progetto.View.LibroView.LibroTableView;
 import org.progetto.View.LibroView.LibroView;
@@ -47,8 +48,8 @@ public class LibreriaGUI extends JFrame {
         cardLayout = new CardLayout();
         panel = new JPanel(cardLayout);
 
-        tableView = new LibroTableViewFactory().createView();
-        listView = new LibroListViewFactory().createView();
+        tableView = new LibroTableView();
+        listView = new LibroListView();
 
         //aggiunta viste
         panel.add(tableView.getComponent(), TABLE);
@@ -90,10 +91,6 @@ public class LibreriaGUI extends JFrame {
 
         // Modifica
         JMenu editMenu = new JMenu("Modifica");
-        JMenuItem aggiorna = new JMenuItem("Aggiorna");
-        aggiorna.addActionListener(e -> aggiornaView());
-        editMenu.add(aggiorna);
-        editMenu.addSeparator();
 
         JMenuItem undoItem = new JMenuItem("Annulla");
         undoItem.addActionListener(e -> {
@@ -135,7 +132,6 @@ public class LibreriaGUI extends JFrame {
         vistaLista.setAccelerator(KeyStroke.getKeyStroke("control L"));
 
         visualizeMenu.add(vistaTable);
-        visualizeMenu.addSeparator();
         visualizeMenu.add(vistaLista);
 
         menuBar.add(fileMenu);
@@ -209,7 +205,6 @@ public class LibreriaGUI extends JFrame {
 
             AggiungiLibroCommand aggiungi = new AggiungiLibroCommand(nuovoLibro, gestoreStati);
             aggiungi.esegui();
-            aggiornaView();
         } else {
             JOptionPane.showMessageDialog(this, "Operazione annullata.");
         }
@@ -276,7 +271,6 @@ public class LibreriaGUI extends JFrame {
         if (confirm == JOptionPane.YES_OPTION) {
             EliminaLibroCommand elimina = new EliminaLibroCommand(libro, gestoreStati);
             elimina.esegui();
-            aggiornaView();
         } else {
             JOptionPane.showMessageDialog(this, "Operazione annullata.");
         }
@@ -321,7 +315,6 @@ public class LibreriaGUI extends JFrame {
 
             ModificaLibroCommand modifica = new ModificaLibroCommand(libroModificato, gestoreStati);
             modifica.esegui();
-            aggiornaView();
         } else {
             JOptionPane.showMessageDialog(this, "Modifica annullata.");
         }
@@ -374,39 +367,54 @@ public class LibreriaGUI extends JFrame {
     private void applicaFiltriERicerca() {
         List<Libro> libriFiltrati = LibreriaSingleton.INSTANCE.getLibri();
 
-        //filtro per StatoLettura
+        // Creo i filtri da applicare
+        Filtro filtroStato;
         String selectedStato = (String) statoFiltraComboBox.getSelectedItem();
         if (selectedStato != null && !selectedStato.equals("Tutti")) {
             Libro.StatoLettura statoDaFiltrare = Libro.StatoLettura.valueOf(selectedStato);
-            libriFiltrati = libriFiltrati.stream()
-                    .filter(libro -> libro.getStatoLettura() == statoDaFiltrare)
-                    .collect(Collectors.toList());
+            filtroStato = new FiltroStatoLettura(statoDaFiltrare);
+        } else {
+            filtroStato = null;
         }
 
-        //filtro per Valutazione
+        Filtro filtroValutazione;
         String selectedValutazione = (String) valutazioneFiltraComboBox.getSelectedItem();
         if (selectedValutazione != null && !selectedValutazione.equals("Tutte")) {
-            libriFiltrati = libriFiltrati.stream()
-                    .filter(libro -> libro.getValutazione() != null &&
-                            libro.getValutazione().getDescrizione().equals(selectedValutazione))
-                    .collect(Collectors.toList());
+            // Trova enum Valutazione da descrizione
+            Libro.Valutazione valEnum = null;
+            for (Libro.Valutazione v : Libro.Valutazione.values()) {
+                if (v.getDescrizione().equals(selectedValutazione)) {
+                    valEnum = v;
+                    break;
+                }
+            }
+            if (valEnum != null) {
+                filtroValutazione = new FiltroValutazione(valEnum);
+            } else {
+                filtroValutazione = null;
+            }
+        } else {
+            filtroValutazione = null;
         }
 
-        //Ricerca testuale
-        String searchText = cercaField.getText().trim();
-        if (!searchText.isEmpty()) {
-            String lowerCaseSearchText = searchText.toLowerCase();
-            libriFiltrati = libriFiltrati.stream()
-                    .filter(libro ->
-                            libro.getTitolo().toLowerCase().contains(lowerCaseSearchText) ||
-                                    libro.getAutore().toLowerCase().contains(lowerCaseSearchText) ||
-                                    libro.getISBN().toLowerCase().contains(lowerCaseSearchText) ||
-                                    libro.getGenere().toLowerCase().contains(lowerCaseSearchText)
-                    )
-                    .collect(Collectors.toList());
-        }
+        // Ricerca testuale
+        String searchText = cercaField.getText().trim().toLowerCase();
 
-        // Aggiorna tutte e due le viste con le opzioni di cerca e filtra selezionate
+        // Applico i filtri combinati
+        libriFiltrati = libriFiltrati.stream()
+                .filter(libro -> {
+                    boolean passaFiltroStato = filtroStato == null || filtroStato.filtra(libro);
+                    boolean passaFiltroValutazione = filtroValutazione == null || filtroValutazione.filtra(libro);
+                    boolean passaRicerca = searchText.isEmpty() ||
+                            libro.getTitolo().toLowerCase().contains(searchText) ||
+                            libro.getAutore().toLowerCase().contains(searchText) ||
+                            libro.getISBN().toLowerCase().contains(searchText) ||
+                            libro.getGenere().toLowerCase().contains(searchText);
+
+                    return passaFiltroStato && passaFiltroValutazione && passaRicerca;
+                })
+                .collect(Collectors.toList());
+
         tableView.aggiorna(libriFiltrati);
         listView.aggiorna(libriFiltrati);
     }

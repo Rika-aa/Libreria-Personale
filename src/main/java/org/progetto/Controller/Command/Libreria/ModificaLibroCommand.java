@@ -16,20 +16,10 @@ public class ModificaLibroCommand implements Command {
     }
 
     @Override
-    public boolean esegui() {
+    public void esegui() {
         //eseguo la modifica
         LibreriaSingleton.INSTANCE.modificaLibro(libroModificato);
         gestoreStati.saveState(LibreriaSingleton.INSTANCE.getGestore().save());
-        return true;
     }
 
-    @Override
-    public boolean undo() {
-        return gestoreStati.undo();
-    }
-
-    @Override
-    public boolean redo() {
-        return gestoreStati.redo();
-    }
 }

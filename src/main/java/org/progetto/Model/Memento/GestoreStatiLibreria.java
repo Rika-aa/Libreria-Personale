@@ -1,7 +1,6 @@
 package org.progetto.Model.Memento;
 
 import org.progetto.Model.GestoreLibreria;
-import org.progetto.Model.Singleton.LibreriaSingleton;
 
 import java.util.LinkedList;
 
@@ -18,7 +17,6 @@ public class GestoreStatiLibreria { //corrisponde al caretaker del pattern memen
         saveState(originator.save()); //salvo lo stato iniziale dell'originator
     }
 
-    //salva un nuovo stato
     public void saveState(Memento memento) {
         undoList.add(memento);//nuovo stato in coda
         redoList.clear();//per ogni nuova operazione cancello redo

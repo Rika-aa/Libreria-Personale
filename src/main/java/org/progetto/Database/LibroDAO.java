@@ -26,9 +26,9 @@ public class LibroDAO {
         try (Connection conn = DriverManager.getConnection(JDBC_URL);
              Statement stmt = conn.createStatement()){
             stmt.execute(sql); //per eseguire create table statement
-            System.out.println("Tabella creata.");
+            //System.out.println("Tabella creata.");
         } catch (SQLException e){
-            System.out.println("Errore creazione tabella: " +e.getMessage());
+            System.err.println("Errore creazione tabella: " +e.getMessage());
         }
     }
 
@@ -42,10 +42,10 @@ public class LibroDAO {
             pstmt.setString(4, libro.getGenere());
             pstmt.setString(5, libro.getValutazione() != null ? libro.getValutazione().getDescrizione() : null);
             pstmt.executeUpdate();
-            System.out.println("Libro aggiunto: "+libro.getTitolo());
+            //System.out.println("Libro aggiunto: "+libro.getTitolo());
             return true;
         } catch (SQLException e) {
-            System.out.println("Errore inserimento: " +e.getMessage());
+            System.err.println("Errore inserimento: " +e.getMessage());
             return false;
         }
     }
@@ -111,7 +111,6 @@ public class LibroDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, isbn);
             int affectedRows = pstmt.executeUpdate();
-            System.out.println("DEBUG DELETE: Tentativo di eliminare ISBN: " + isbn + ", Righe affette: " + affectedRows);
             return affectedRows > 0;
         } catch (SQLException e) {
             System.err.println("Errore nell'eliminazione del libro: " + e.getMessage());
@@ -159,7 +158,7 @@ public class LibroDAO {
         try (Connection conn = DriverManager.getConnection(JDBC_URL);
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(sql);
-            System.out.println("Tutti i libri eliminati dal database.");
+            //System.out.println("Tutti i libri eliminati dal database.");
         } catch (SQLException e) {
             System.err.println("Errore durante l'eliminazione di tutti i libri: " + e.getMessage());
         }
