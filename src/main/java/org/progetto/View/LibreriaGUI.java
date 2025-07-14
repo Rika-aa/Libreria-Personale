@@ -42,6 +42,7 @@ public class LibreriaGUI extends JFrame {
         setTitle("Libreria");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
+        setLocationRelativeTo(null);
 
         gestoreStati = new GestoreStatiLibreria(LibreriaSingleton.INSTANCE.getGestore());
 
@@ -377,6 +378,31 @@ public class LibreriaGUI extends JFrame {
             filtroStato = null;
         }
 
+        Filtro filtroValutazione = getFiltro();
+
+        // Ricerca testuale
+        String searchText = cercaField.getText().trim().toLowerCase();
+
+        // Applico i filtri combinati
+        libriFiltrati = libriFiltrati.stream()
+                .filter(libro -> {
+                    boolean passaFiltroStato = filtroStato == null || filtroStato.filtra(libro);
+                    boolean passaFiltroValutazione = filtroValutazione == null || filtroValutazione.filtra(libro);
+                    boolean passaRicerca = searchText.isEmpty() ||
+                            libro.getTitolo().toLowerCase().contains(searchText) ||
+                            libro.getAutore().toLowerCase().contains(searchText) ||
+                            libro.getISBN().toLowerCase().contains(searchText) ||
+                            libro.getGenere().toLowerCase().contains(searchText);
+
+                    return passaFiltroStato && passaFiltroValutazione && passaRicerca;
+                })
+                .collect(Collectors.toList());
+        //pochè non si hanno modifiche permanenti sulla libria (aggiunda, modifca o eliminazione libro) si applica un aggiornamento manuale
+        tableView.aggiorna(libriFiltrati);
+        listView.aggiorna(libriFiltrati);
+    }
+
+    private Filtro getFiltro() {
         Filtro filtroValutazione;
         String selectedValutazione = (String) valutazioneFiltraComboBox.getSelectedItem();
         if (selectedValutazione != null && !selectedValutazione.equals("Tutte")) {
@@ -396,27 +422,7 @@ public class LibreriaGUI extends JFrame {
         } else {
             filtroValutazione = null;
         }
-
-        // Ricerca testuale
-        String searchText = cercaField.getText().trim().toLowerCase();
-
-        // Applico i filtri combinati
-        libriFiltrati = libriFiltrati.stream()
-                .filter(libro -> {
-                    boolean passaFiltroStato = filtroStato == null || filtroStato.filtra(libro);
-                    boolean passaFiltroValutazione = filtroValutazione == null || filtroValutazione.filtra(libro);
-                    boolean passaRicerca = searchText.isEmpty() ||
-                            libro.getTitolo().toLowerCase().contains(searchText) ||
-                            libro.getAutore().toLowerCase().contains(searchText) ||
-                            libro.getISBN().toLowerCase().contains(searchText) ||
-                            libro.getGenere().toLowerCase().contains(searchText);
-
-                    return passaFiltroStato && passaFiltroValutazione && passaRicerca;
-                })
-                .collect(Collectors.toList());
-
-        tableView.aggiorna(libriFiltrati);
-        listView.aggiorna(libriFiltrati);
+        return filtroValutazione;
     }
 
     public static void main(String[] args) {
