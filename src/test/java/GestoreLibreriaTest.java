@@ -63,7 +63,7 @@ class GestoreLibreriaTest {
     @DisplayName("Test per eliminare correttamente un libro dal gestore e dal database")
     void testEliminaLibro() {
         Libro libro = new Libro("1984", "George Orwell", "978-0451524935", "Distopico");
-        gestore.aggiungiLibro(libro); // Aggiunge per poter eliminare
+        gestore.aggiungiLibro(libro); // aggiunta test per eliminazione
 
         assertEquals(1, gestore.getLibri().size());
         assertNotNull(libroDAO.getLibroIsbn(libro.getISBN()));
@@ -95,7 +95,7 @@ class GestoreLibreriaTest {
         // Verifica in memoria
         List<Libro> libriInMemoria = gestore.getLibri();
         assertEquals(1, libriInMemoria.size());
-        assertEquals(libroModificato, libriInMemoria.get(0)); // Richiede equals() in Libro
+        assertEquals(libroModificato, libriInMemoria.get(0));
 
         // Verifica nel database
         Libro libroDalDB = libroDAO.getLibroIsbn(libroModificato.getISBN());
@@ -155,7 +155,7 @@ class GestoreLibreriaTest {
         assertFalse(filtroFail.filtra(libro));
 
         libro.setValutazione(null);
-        assertFalse(filtro.filtra(libro));  // se il codice non gestisce null, potresti avere NullPointerException qui
+        assertFalse(filtro.filtra(libro));
     }
 
     @Test
