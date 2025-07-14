@@ -364,7 +364,7 @@ public class LibreriaGUI extends JFrame {
         return toolBar;
     }
 
-    //;etodo per applicare i filtri e la ricerca
+    //Metodo per applicare i filtri e la ricerca
     private void applicaFiltriERicerca() {
         List<Libro> libriFiltrati = LibreriaSingleton.INSTANCE.getLibri();
 
@@ -397,7 +397,7 @@ public class LibreriaGUI extends JFrame {
                     return passaFiltroStato && passaFiltroValutazione && passaRicerca;
                 })
                 .collect(Collectors.toList());
-        //pochè non si hanno modifiche permanenti sulla libria (aggiunda, modifca o eliminazione libro) si applica un aggiornamento manuale
+        //pochè non si hanno modifiche permanenti sulla libreria (aggiunda, modifca o eliminazione libro) si applica un aggiornamento manuale
         tableView.aggiorna(libriFiltrati);
         listView.aggiorna(libriFiltrati);
     }
